@@ -1,0 +1,177 @@
+<svg width="1800" height="1000" viewBox="0 0 1800 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1800" height="1000" fill="#F5EEDF"/>
+  <circle cx="170" cy="135" r="120" fill="#F2C9A9" fill-opacity="0.55"/>
+  <circle cx="1600" cy="115" r="110" fill="#DCE6D3" fill-opacity="0.85"/>
+  <circle cx="1490" cy="835" r="165" fill="#F0DCC4" fill-opacity="0.7"/>
+
+  <text x="110" y="100" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="3">MORE THAN A MEAL</text>
+  <text x="110" y="158" fill="#22313C" font-family="Georgia, Times New Roman, serif" font-size="54" font-weight="700">Mobile concept mockup</text>
+  <text x="110" y="206" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="24">
+    <tspan x="110" dy="0">A phone-first concept for trusted meal pods, low-effort planning,</tspan>
+    <tspan x="110" dy="32">and lightweight weekly coordination.</tspan>
+  </text>
+
+  <g transform="translate(140 270)">
+    <rect x="0" y="0" width="320" height="650" rx="46" fill="#1D242C"/>
+    <rect x="18" y="18" width="284" height="614" rx="34" fill="#FBF6EF"/>
+    <rect x="115" y="20" width="90" height="18" rx="9" fill="#1D242C"/>
+    <text x="40" y="56" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">9:41</text>
+    <text x="236" y="56" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">5G 84%</text>
+
+    <rect x="36" y="74" width="248" height="184" rx="28" fill="#2A3A45"/>
+    <text x="56" y="104" fill="#F2B78E" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="2">HOME</text>
+    <text x="56" y="144" fill="#FFFFFF" font-family="Georgia, Times New Roman, serif" font-size="30" font-weight="700">
+      <tspan x="56" dy="0">Eat well with</tspan>
+      <tspan x="56" dy="34">others, without</tspan>
+      <tspan x="56" dy="34">the headache.</tspan>
+    </text>
+    <text x="56" y="226" fill="#D9E1E6" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="14">Small trusted pods. Optional shared dinners.</text>
+
+    <rect x="36" y="278" width="248" height="92" rx="24" fill="#FFFDF9" stroke="#E7DED2"/>
+    <text x="56" y="304" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="2">THIS WEEK</text>
+    <text x="56" y="336" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Matched with Pod 04</text>
+    <text x="56" y="360" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="14">Wed 7:00 PM  •  3 people  •  vegetarian-friendly</text>
+
+    <rect x="36" y="388" width="248" height="66" rx="20" fill="#FFFDF9" stroke="#E7DED2"/>
+    <text x="56" y="414" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="2">ENERGY-AWARE</text>
+    <text x="56" y="440" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">Meals fit your real week</text>
+
+    <rect x="36" y="470" width="248" height="66" rx="20" fill="#FFFDF9" stroke="#E7DED2"/>
+    <text x="56" y="496" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="2">OPTIONAL SOCIAL</text>
+    <text x="56" y="522" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">Share dinner or portion and go</text>
+
+    <rect x="28" y="572" width="264" height="44" rx="18" fill="#FFF9F2" stroke="#E7DED2"/>
+    <rect x="40" y="579" width="48" height="30" rx="12" fill="#22313C"/>
+    <text x="64" y="598" fill="#FFFFFF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Home</text>
+    <text x="118" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Profile</text>
+    <text x="172" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Pod</text>
+    <text x="214" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Plan</text>
+    <text x="250" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Chat</text>
+  </g>
+
+  <g transform="translate(530 270)">
+    <rect x="0" y="0" width="320" height="650" rx="46" fill="#1D242C"/>
+    <rect x="18" y="18" width="284" height="614" rx="34" fill="#FBF6EF"/>
+    <rect x="115" y="20" width="90" height="18" rx="9" fill="#1D242C"/>
+    <text x="40" y="56" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">9:41</text>
+    <text x="236" y="56" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">5G 84%</text>
+
+    <text x="40" y="96" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="2">ONBOARDING</text>
+    <text x="40" y="132" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Set your week up fast</text>
+
+    <rect x="36" y="152" width="248" height="92" rx="24" fill="#FFFDF9" stroke="#E7DED2"/>
+    <text x="56" y="178" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="2">WEEKNIGHT ENERGY</text>
+    <rect x="56" y="192" width="94" height="30" rx="15" fill="#F5DDC8"/>
+    <text x="103" y="211" fill="#84431C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">10-20 min</text>
+    <rect x="156" y="192" width="82" height="30" rx="15" fill="#F6EFE6"/>
+    <text x="197" y="211" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Full energy</text>
+
+    <rect x="36" y="262" width="248" height="152" rx="24" fill="#FFFDF9" stroke="#E7DED2"/>
+    <text x="56" y="288" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="2">SOCIAL COMFORT</text>
+    <rect x="56" y="303" width="208" height="34" rx="16" fill="#DFE8D8"/>
+    <text x="70" y="325" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700">Small familiar group</text>
+    <text x="205" y="325" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11">Recommended</text>
+    <rect x="56" y="346" width="208" height="28" rx="14" fill="#FFFCF7" stroke="#E7DED2"/>
+    <text x="70" y="364" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11">Open to new people</text>
+    <rect x="56" y="381" width="208" height="28" rx="14" fill="#FFFCF7" stroke="#E7DED2"/>
+    <text x="70" y="399" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11">Take-home only this week</text>
+
+    <rect x="36" y="432" width="248" height="90" rx="24" fill="#FFFDF9" stroke="#E7DED2"/>
+    <text x="56" y="458" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="2">PROFILE SUMMARY</text>
+    <text x="56" y="490" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">2 dinners  •  vegetarian-flex</text>
+    <text x="56" y="512" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="14">Low-pressure pod  •  optional sit-down time</text>
+
+    <rect x="28" y="572" width="264" height="44" rx="18" fill="#FFF9F2" stroke="#E7DED2"/>
+    <text x="55" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Home</text>
+    <rect x="84" y="579" width="58" height="30" rx="12" fill="#22313C"/>
+    <text x="113" y="598" fill="#FFFFFF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Profile</text>
+    <text x="172" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Pod</text>
+    <text x="214" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Plan</text>
+    <text x="250" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Chat</text>
+  </g>
+
+  <g transform="translate(920 270)">
+    <rect x="0" y="0" width="320" height="650" rx="46" fill="#1D242C"/>
+    <rect x="18" y="18" width="284" height="614" rx="34" fill="#FBF6EF"/>
+    <rect x="115" y="20" width="90" height="18" rx="9" fill="#1D242C"/>
+    <text x="40" y="56" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">9:41</text>
+    <text x="236" y="56" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">5G 84%</text>
+
+    <text x="40" y="96" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="2">YOUR POD</text>
+    <text x="40" y="132" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Weeknight Reset</text>
+
+    <rect x="36" y="152" width="248" height="128" rx="24" fill="#FFFDF9" stroke="#E7DED2"/>
+    <text x="56" y="178" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="2">MATCH STRENGTH</text>
+    <text x="56" y="210" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">92% fit</text>
+    <rect x="198" y="186" width="58" height="24" rx="12" fill="#DFE8D8"/>
+    <text x="227" y="202" fill="#35522B" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Pod 04</text>
+    <text x="56" y="236" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="14">All 3 members want simple, under-30-minute meals.</text>
+    <text x="56" y="258" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="14">Shared dinner time is optional.</text>
+
+    <rect x="36" y="298" width="248" height="150" rx="24" fill="#FFFDF9" stroke="#E7DED2"/>
+    <text x="56" y="324" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="2">MEMBERS</text>
+    <rect x="56" y="340" width="208" height="28" rx="14" fill="#FFFCF7" stroke="#E7DED2"/>
+    <text x="70" y="358" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Maya</text>
+    <text x="208" y="358" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11">Budget-first</text>
+    <rect x="56" y="376" width="208" height="28" rx="14" fill="#FFFCF7" stroke="#E7DED2"/>
+    <text x="70" y="394" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Jordan</text>
+    <text x="186" y="394" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11">Low social battery</text>
+    <rect x="56" y="412" width="208" height="28" rx="14" fill="#F5DDC8"/>
+    <text x="70" y="430" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">You</text>
+    <text x="201" y="430" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11">Vegetarian-flex</text>
+
+    <rect x="36" y="466" width="248" height="56" rx="20" fill="#FFFDF9" stroke="#E7DED2"/>
+    <text x="56" y="492" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="10" font-weight="700" letter-spacing="2">POD RULES</text>
+    <text x="56" y="514" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="14">No forced hanging out  •  easy weekly skip</text>
+
+    <rect x="28" y="572" width="264" height="44" rx="18" fill="#FFF9F2" stroke="#E7DED2"/>
+    <text x="55" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Home</text>
+    <text x="111" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Profile</text>
+    <rect x="150" y="579" width="42" height="30" rx="12" fill="#22313C"/>
+    <text x="171" y="598" fill="#FFFFFF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Pod</text>
+    <text x="214" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Plan</text>
+    <text x="250" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Chat</text>
+  </g>
+
+  <g transform="translate(1310 270)">
+    <rect x="0" y="0" width="320" height="650" rx="46" fill="#1D242C"/>
+    <rect x="18" y="18" width="284" height="614" rx="34" fill="#FBF6EF"/>
+    <rect x="115" y="20" width="90" height="18" rx="9" fill="#1D242C"/>
+    <text x="40" y="56" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">9:41</text>
+    <text x="236" y="56" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="13" font-weight="700">5G 84%</text>
+
+    <text x="40" y="96" fill="#C86F35" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="2">PLAN + CHAT</text>
+    <text x="40" y="132" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="28" font-weight="700">Weekly flow</text>
+
+    <rect x="36" y="152" width="248" height="162" rx="24" fill="#FFFDF9" stroke="#E7DED2"/>
+    <circle cx="58" cy="186" r="6" fill="#C86F35"/>
+    <circle cx="58" cy="232" r="6" fill="#C86F35"/>
+    <circle cx="58" cy="278" r="6" fill="#C86F35"/>
+    <text x="76" y="182" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Recipe selected</text>
+    <text x="76" y="203" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="13">Lemon chickpea pasta</text>
+    <text x="76" y="228" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Shopping divided</text>
+    <text x="76" y="249" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="13">Each member brings one part</text>
+    <text x="76" y="274" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Optional shared dinner</text>
+    <text x="76" y="295" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="13">Eat together, then portion meals</text>
+
+    <rect x="36" y="332" width="248" height="96" rx="24" fill="#FFFDF9" stroke="#E7DED2"/>
+    <rect x="52" y="348" width="176" height="32" rx="16" fill="#F2EBDF"/>
+    <text x="66" y="367" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11">Wednesday still good? No pressure to stay late.</text>
+    <rect x="92" y="388" width="156" height="26" rx="13" fill="#DFE8D8"/>
+    <text x="108" y="405" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11">Perfect. I’ll bring pasta and head out after.</text>
+
+    <rect x="36" y="446" width="116" height="76" rx="20" fill="#FFFDF9" stroke="#E7DED2"/>
+    <text x="54" y="475" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Cost</text>
+    <text x="54" y="500" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="14">$12.40 each</text>
+    <rect x="168" y="446" width="116" height="76" rx="20" fill="#FFFDF9" stroke="#E7DED2"/>
+    <text x="186" y="475" fill="#22313C" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Portions</text>
+    <text x="186" y="500" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="14">12 meals planned</text>
+
+    <rect x="28" y="572" width="264" height="44" rx="18" fill="#FFF9F2" stroke="#E7DED2"/>
+    <text x="55" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Home</text>
+    <text x="111" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Profile</text>
+    <text x="165" y="598" fill="#667683" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700">Pod</text>
+    <rect x="201" y="579" width="60" height="30" rx="12" fill="#22313C"/>
+    <text x="231" y="598" fill="#FFFFFF" font-family="Avenir Next, Segoe UI, Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Plan</text>
+  </g>
+</svg>
