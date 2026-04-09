@@ -1,0 +1,522 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 14% 16%, rgba(200, 111, 53, 0.18), transparent 24%),
+    radial-gradient(circle at 84% 12%, rgba(112, 141, 97, 0.18), transparent 20%),
+    linear-gradient(180deg, #f6efe3 0%, #eadfcf 100%);
+}
+
+.phoneFrame {
+  width: min(100%, 390px);
+  height: min(100vh - 30px, 844px);
+  background: linear-gradient(180deg, #fffdf9 0%, #f8f2ea 100%);
+  border: 10px solid #1d242c;
+  border-radius: 40px;
+  box-shadow: 0 30px 70px rgba(76, 51, 26, 0.18);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: #22313c;
+}
+
+.statusBar {
+  height: 48px;
+  padding: 14px 18px 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.centeredScreen,
+.splashScreen {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 28px;
+}
+
+.splashScreen {
+  background: linear-gradient(180deg, #243540 0%, #39505c 100%);
+  color: white;
+}
+
+.brandKicker,
+.cardKicker {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #c86f35;
+}
+
+.splashScreen .brandKicker {
+  color: #f0c39d;
+}
+
+.splashScreen h1 {
+  margin: 10px 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 3rem;
+  line-height: 0.95;
+}
+
+.screenBody,
+.appView {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.screenBody {
+  overflow-y: auto;
+  padding: 18px;
+  gap: 16px;
+}
+
+.screenHeader h2,
+.heroCard h2,
+.heroCard h3,
+.appHeader h2 {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.screenHeader {
+  display: grid;
+  gap: 8px;
+}
+
+.screenHeader p:last-child,
+.statusMessage,
+.choiceCard small,
+.infoCard p,
+.helperText {
+  color: #607280;
+}
+
+.authCard,
+.heroCard,
+.infoCard,
+.chatCard {
+  background: rgba(255, 253, 249, 0.95);
+  border: 1px solid rgba(34, 49, 60, 0.1);
+  border-radius: 24px;
+  box-shadow: 0 10px 24px rgba(72, 51, 32, 0.06);
+  padding: 16px;
+}
+
+.heroCard {
+  background: linear-gradient(160deg, #263742 0%, #39505c 100%);
+  color: white;
+}
+
+.heroCard p {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.authToggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  background: #f4ede3;
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.authToggle button,
+.primaryButton,
+.secondaryButton,
+.choiceCard,
+.selectedChoice,
+.chip,
+.selectedChip,
+.rating,
+.activeRating,
+.mobileTabs button,
+.iconButton,
+.stepperButton {
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.authToggle button {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: transparent;
+  color: #607280;
+}
+
+.activeMode {
+  background: #22313c !important;
+  color: white !important;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field input,
+.messageComposer input,
+.feedbackBox {
+  width: 100%;
+  border: 1px solid rgba(34, 49, 60, 0.12);
+  border-radius: 16px;
+  background: #fffdfa;
+  padding: 12px 14px;
+  color: #22313c;
+}
+
+.primaryButton,
+.secondaryButton,
+.iconButton {
+  border-radius: 16px;
+  padding: 12px 16px;
+  font-weight: 700;
+}
+
+.primaryButton {
+  background: #22313c;
+  color: white;
+}
+
+.secondaryButton {
+  background: #f5ddc8;
+  color: #7d421d;
+}
+
+.progressBlock {
+  display: grid;
+  gap: 8px;
+}
+
+.progressLabelRow {
+  display: flex;
+  justify-content: space-between;
+  color: #607280;
+  font-size: 0.82rem;
+}
+
+.progressTrack {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(34, 49, 60, 0.08);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #c86f35, #e4b48f);
+}
+
+.stepContent {
+  display: grid;
+  gap: 14px;
+}
+
+.choiceColumn {
+  display: grid;
+  gap: 10px;
+}
+
+.choiceCard,
+.selectedChoice {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.choiceCard {
+  background: #fffaf3;
+  border: 1px solid rgba(34, 49, 60, 0.1);
+  color: #22313c;
+}
+
+.selectedChoice {
+  background: #dfe8d8;
+  border: 1px solid rgba(112, 141, 97, 0.28);
+  color: #22313c;
+}
+
+.choiceCard span,
+.selectedChoice span {
+  color: #22313c;
+}
+
+.choiceCard small,
+.selectedChoice small {
+  color: #607280;
+}
+
+.recipeMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.goodBadge,
+.warningBadge,
+.metaPill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
+.goodBadge {
+  background: #dfe8d8;
+  color: #35522b;
+}
+
+.warningBadge {
+  background: #f5ddc8;
+  color: #8a4b24;
+}
+
+.metaPill {
+  background: #f3eee5;
+  color: #607280;
+}
+
+.warningText {
+  margin-top: 4px;
+  color: #8a4b24;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.tagGrid,
+.ratingRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip,
+.selectedChip,
+.rating,
+.activeRating {
+  padding: 10px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.chip,
+.rating {
+  background: #f6efe6;
+  color: #22313c;
+}
+
+.selectedChip,
+.activeRating {
+  background: #f5ddc8;
+  color: #84431c;
+}
+
+.compactGrid {
+  display: grid;
+  gap: 12px;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.statCard {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 16px;
+  background: #fffaf3;
+  border: 1px solid rgba(34, 49, 60, 0.08);
+  text-align: center;
+}
+
+.statValue {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #22313c;
+}
+
+.statLabel {
+  font-size: 0.72rem;
+  color: #607280;
+}
+
+.bulletColumn {
+  display: grid;
+  gap: 8px;
+}
+
+.inlineStat {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.footerActions,
+.stepperRow,
+.messageComposer,
+.appHeader,
+.friendComposer,
+.headerActions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.footerActions {
+  margin-top: auto;
+}
+
+.footerActions > * {
+  flex: 1;
+}
+
+.appHeader {
+  justify-content: space-between;
+  padding: 18px 18px 12px;
+}
+
+.iconButton {
+  background: #f3eee5;
+  color: #607280;
+}
+
+.ghostButton {
+  border: 1px solid rgba(34, 49, 60, 0.12);
+  background: #fffaf3;
+  color: #22313c;
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 700;
+}
+
+.mobileTabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 0 18px 12px;
+}
+
+.mobileTabs button {
+  background: #f3eee5;
+  color: #607280;
+  padding: 10px 6px;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.activeMobileTab {
+  background: #22313c !important;
+  color: white !important;
+}
+
+.infoCard {
+  display: grid;
+  gap: 12px;
+}
+
+.stepperRow {
+  justify-content: space-between;
+}
+
+.stepperButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: #22313c;
+  color: #ffffff;
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+
+.chatCard {
+  display: grid;
+  gap: 10px;
+  min-height: 220px;
+}
+
+.incomingMessage,
+.outgoingMessage {
+  max-width: 86%;
+  padding: 12px 14px;
+  border-radius: 18px;
+  line-height: 1.45;
+}
+
+.incomingMessage {
+  background: #ece8e0;
+}
+
+.outgoingMessage {
+  background: #dbe8f6;
+  justify-self: end;
+}
+
+.messageComposer input {
+  flex: 1;
+}
+
+.feedbackBox {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.friendComposer input {
+  flex: 1;
+  width: 100%;
+  border: 1px solid rgba(34, 49, 60, 0.12);
+  border-radius: 16px;
+  background: #fffdfa;
+  padding: 12px 14px;
+  color: #22313c;
+}
+
+.friendList {
+  display: grid;
+  gap: 10px;
+}
+
+.friendRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #fffaf3;
+  border: 1px solid rgba(34, 49, 60, 0.08);
+}
+
+@media (max-width: 440px) {
+  .page {
+    padding: 0;
+  }
+
+  .phoneFrame {
+    width: 100vw;
+    height: 100vh;
+    border-width: 0;
+    border-radius: 0;
+  }
+}

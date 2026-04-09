@@ -1,47 +1,82 @@
 # More Than a Meal
 
-More Than a Meal is a mobile-first concept prototype for low-effort social meal prep. The app is designed around a simple idea from user research: people want meals that fit their energy level, and they want social connection without the pressure of organizing it.
+More Than a Meal is a Supabase-backed Next.js prototype for low-effort social meal prep. It lets multiple people create accounts, save onboarding preferences, join the same demo pod, vote on recipes, update tasks, leave feedback, and message inside the pod.
 
-## Concept
+## What This Version Includes
 
-The prototype focuses on small trusted meal pods that help users:
+- Email/password sign up and sign in with Supabase Auth
+- Shared onboarding profile data in Postgres
+- A seeded live demo pod that multiple testers can join
+- Recipe voting, meal-mode selection, and portion count updates
+- Task tracking, feedback, and pod chat
+- Mobile-first UI inside a phone-style shell
 
-- coordinate one shared weekly meal-prep flow
-- split grocery effort and cost
-- choose whether to stay for a short shared meal or just portion and go
-- avoid the overhead of a heavy new social app
+## Tech Stack
 
-## Initial Screens
+- Next.js App Router
+- TypeScript
+- Supabase Auth
+- Supabase Postgres
 
-The current mockup includes four key mobile moments:
-
-1. `Home`
-   Shows the weekly match, core value proposition, and low-effort positioning.
-2. `Onboarding`
-   Captures energy level, social comfort, and lightweight profile preferences.
-3. `Your Pod`
-   Shows the matched meal pod, member fit, and low-pressure group norms.
-4. `Plan + Chat`
-   Combines the weekly prep flow with lightweight coordination messages.
-
-## Screen Mockup
+## Screens
 
 ![More Than a Meal mobile mockup](./assets/mockup-slide.png)
 
-## Files
+## Local Setup
 
-- [index.html](./index.html): mobile app prototype shell
-- [styles.css](./styles.css): mobile UI styling
-- [app.js](./app.js): tab-based screen switching
-- [assets/mockup-slide.png](./assets/mockup-slide.png): slide-ready screen board
-- [assets/mockup-slide.svg](./assets/mockup-slide.svg): vector version of the board
-
-## Run Locally
-
-Open `index.html` directly in a browser:
+1. Create a Supabase project.
+2. Copy `.env.example` to `.env.local`.
+3. Add your project values:
 
 ```bash
-open index.html
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
 ```
 
-For the best experience, use your browser's mobile device mode.
+4. Open the Supabase SQL editor and run:
+
+```sql
+-- contents of supabase/schema.sql
+```
+
+That file creates:
+- `profiles`
+- `pods`
+- `pod_members`
+- `recipe_options`
+- `recipe_votes`
+- `tasks`
+- `feedback`
+- `pod_messages`
+
+It also seeds a shared `demo-pod` so your friends can test the same pod together.
+
+5. Install dependencies and start the app:
+
+```bash
+npm install
+npm run dev
+```
+
+6. Open [http://localhost:3000](http://localhost:3000)
+
+## Try It With Friends
+
+1. Deploy the app to Vercel.
+2. Add the same two env vars in the Vercel project settings.
+3. Share the live URL with your friends.
+4. Have everyone create an account and join the demo pod.
+
+Because the app uses a shared Supabase database, everyone who signs in will see the same pod updates in the same backend.
+
+## Important Note
+
+This is a prototype-quality backend, not a production-hardened system. The current row-level security policies are intentionally permissive to make class testing easy. Before using this beyond demo/testing, tighten the policies and add stronger role checks.
+
+## Key Files
+
+- [src/app/page.tsx](./src/app/page.tsx): main app UI and client-side Supabase logic
+- [src/app/page.module.css](./src/app/page.module.css): app styling
+- [src/lib/supabase/client.ts](./src/lib/supabase/client.ts): Supabase browser client
+- [supabase/schema.sql](./supabase/schema.sql): schema, policies, and demo seed data
+- [.env.example](./.env.example): required environment variables
