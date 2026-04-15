@@ -536,6 +536,7 @@
 
 .friendComposer input {
   flex: 1;
+  min-width: 0;
   width: 100%;
   border: 1px solid rgba(34, 49, 60, 0.12);
   border-radius: 16px;
@@ -558,6 +559,17 @@
   border-radius: 16px;
   background: #fffaf3;
   border: 1px solid rgba(34, 49, 60, 0.08);
+}
+
+.friendRow > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.friendRow strong,
+.friendRow p {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 @media (max-width: 440px) {
