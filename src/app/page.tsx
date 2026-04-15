@@ -98,23 +98,26 @@ const goalOptions = [
   "Low-effort cleanup",
 ];
 
-const budgetOptions = ["Lowest cost", "Balanced", "Ingredient quality first"];
+const noPreferenceLabel = "No preference";
 
-const geographyOptions = ["Walkable only", "Nearby drive", "Flexible across town"];
+const budgetOptions = [noPreferenceLabel, "Lowest cost", "Balanced", "Ingredient quality first"];
 
-const supportStyleOptions = ["Lead cook", "Happy helper", "Prep + cleanup", "Need guidance"];
+const geographyOptions = [noPreferenceLabel, "Walkable only", "Nearby drive", "Flexible across town"];
 
-const connectionPreferenceOptions = ["1st-degree friends", "2nd-degree mutuals", "Open mix"];
+const supportStyleOptions = [noPreferenceLabel, "Lead cook", "Happy helper", "Prep + cleanup", "Need guidance"];
+
+const connectionPreferenceOptions = [noPreferenceLabel, "1st-degree friends", "2nd-degree mutuals", "Open mix"];
 
 const courseOptions = ["Main only", "Appetizer + main", "Main + dessert", "Main + dessert + drinks"];
 
-const supportNeedOptions = ["Need a grocery ride", "Need recipe guidance", "Need prep help"];
+const supportNeedOptions = [noPreferenceLabel, "Need a grocery ride", "Need recipe guidance", "Need prep help"];
 
 const dietaryPreferenceOptions = [
-  "No preference",
+  noPreferenceLabel,
   "Vegetarian",
   "Vegan",
   "Pescatarian",
+  "Pollo pescatarian",
   "Avoid red meat",
   "Halal",
   "Gluten-free",
@@ -131,12 +134,14 @@ const allergyOptions = [
 ];
 
 const socialOptions = [
+  noPreferenceLabel,
   "Friends + 2nd-degree mutuals",
   "First-degree friends only",
   "Open to strangers",
 ];
 
 const skillOptions = [
+  noPreferenceLabel,
   "Confident with basics",
   "Can follow Serious Eats",
   "Need structured recipes",
@@ -391,18 +396,38 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<"home" | "recipes" | "tasks" | "chat">("home");
   const [mealMode, setMealMode] = useState("Meal prep");
   const [menuType, setMenuType] = useState("Main + dessert");
-  const [matchConnectionPreference, setMatchConnectionPreference] = useState(connectionPreferenceOptions[0]);
-  const [budgetPreference, setBudgetPreference] = useState(budgetOptions[1]);
-  const [travelPreference, setTravelPreference] = useState(geographyOptions[1]);
-  const [supportStyle, setSupportStyle] = useState(supportStyleOptions[1]);
+  const [matchConnectionPreference, setMatchConnectionPreference] = useState(noPreferenceLabel);
+  const [budgetPreference, setBudgetPreference] = useState(noPreferenceLabel);
+  const [travelPreference, setTravelPreference] = useState(noPreferenceLabel);
+  const [supportStyle, setSupportStyle] = useState(noPreferenceLabel);
   const [vacuumAvailable, setVacuumAvailable] = useState(false);
   const [paperPlatesReady, setPaperPlatesReady] = useState(false);
-  const [fridgeSpace, setFridgeSpace] = useState("Standard fridge space");
-  const [cleanupInstructions, setCleanupInstructions] = useState("Shoes by the door. Wipe counters before leaving.");
+  const [fridgeSpace, setFridgeSpace] = useState("");
+  const [cleanupInstructions, setCleanupInstructions] = useState("");
   const [supportNeeds, setSupportNeeds] = useState<string[]>([]);
   const [receiptName, setReceiptName] = useState("");
   const [grocerySpend, setGrocerySpend] = useState(68);
   const [splitwiseReady, setSplitwiseReady] = useState(false);
+
+  function createBlankProfile(userId: string, email: string | null = null): Profile {
+    return {
+      id: userId,
+      email,
+      display_name: null,
+      cooking_skill: null,
+      social_preference: null,
+      goals: [],
+      dietary_preferences: [],
+      allergies: [],
+      grocery_distance_minutes: null,
+      has_car: false,
+      can_host: false,
+      host_capacity: null,
+      dishwasher: false,
+      utensils_ready: false,
+      onboarding_completed: false,
+    };
+  }
 
   useEffect(() => {
     const timer = window.setTimeout(() => setShowSplash(false), 1500);
@@ -413,10 +438,23 @@ export default function Home() {
     if (!supabase) return;
 
     const { data: profileData } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
-    const nextProfile = (profileData as Profile | null) ?? null;
+    const rawProfile = (profileData as Profile | null) ?? createBlankProfile(userId);
+    const nextProfile = rawProfile.onboarding_completed
+      ? rawProfile
+      : {
+          ...createBlankProfile(userId, rawProfile.email),
+          display_name: null,
+        };
     setProfile(nextProfile);
     setDisplayName(nextProfile?.display_name ?? "");
     setOnboardingDone(Boolean(nextProfile?.onboarding_completed));
+    setBudgetPreference(noPreferenceLabel);
+    setTravelPreference(noPreferenceLabel);
+    setSupportStyle(noPreferenceLabel);
+    setMatchConnectionPreference(noPreferenceLabel);
+    setFridgeSpace("");
+    setCleanupInstructions("");
+    setSupportNeeds([]);
 
     const { data: membership } = await supabase
       .from("pod_members")
@@ -578,18 +616,18 @@ export default function Home() {
   }
 
   function toggleDietaryPreference(option: string) {
-    const current = new Set(profile?.dietary_preferences ?? ["No preference"]);
+    const current = new Set(profile?.dietary_preferences ?? [noPreferenceLabel]);
 
-    if (option === "No preference") {
-      updateProfileField("dietary_preferences", ["No preference"]);
+    if (option === noPreferenceLabel) {
+      updateProfileField("dietary_preferences", [noPreferenceLabel]);
       return;
     }
 
-    current.delete("No preference");
+    current.delete(noPreferenceLabel);
     if (current.has(option)) current.delete(option);
     else current.add(option);
 
-    updateProfileField("dietary_preferences", current.size ? [...current] : ["No preference"]);
+    updateProfileField("dietary_preferences", current.size ? [...current] : []);
   }
 
   function toggleAllergy(option: string) {
@@ -600,6 +638,11 @@ export default function Home() {
   }
 
   function toggleSupportNeed(option: string) {
+    if (option === noPreferenceLabel) {
+      setSupportNeeds([]);
+      return;
+    }
+
     setSupportNeeds((current) =>
       current.includes(option) ? current.filter((item) => item !== option) : [...current, option],
     );
@@ -642,17 +685,18 @@ export default function Home() {
       id: session.user.id,
       email: session.user.email,
       display_name: displayName || session.user.email?.split("@")[0] || "friend",
-      cooking_skill: profile?.cooking_skill || skillOptions[0],
-      social_preference: profile?.social_preference || socialOptions[0],
-      goals: profile?.goals?.length ? profile.goals : ["Save money", "Eat socially", "Meal prep"],
-      dietary_preferences: profile?.dietary_preferences?.length ? profile.dietary_preferences : ["No preference"],
+      cooking_skill: profile?.cooking_skill && profile.cooking_skill !== noPreferenceLabel ? profile.cooking_skill : null,
+      social_preference:
+        profile?.social_preference && profile.social_preference !== noPreferenceLabel ? profile.social_preference : null,
+      goals: profile?.goals?.length ? profile.goals : [],
+      dietary_preferences: profile?.dietary_preferences?.length ? profile.dietary_preferences : [noPreferenceLabel],
       allergies: profile?.allergies ?? [],
-      grocery_distance_minutes: profile?.grocery_distance_minutes ?? 12,
+      grocery_distance_minutes: profile?.grocery_distance_minutes ?? null,
       has_car: profile?.has_car ?? false,
       can_host: profile?.can_host ?? false,
-      host_capacity: profile?.host_capacity ?? 0,
+      host_capacity: profile?.host_capacity ?? null,
       dishwasher: profile?.dishwasher ?? false,
-      utensils_ready: profile?.utensils_ready ?? true,
+      utensils_ready: profile?.utensils_ready ?? false,
       onboarding_completed: true,
       updated_at: new Date().toISOString(),
     };
@@ -943,11 +987,11 @@ export default function Home() {
       case "skill":
         return (
           <div className={styles.stepContent}>
-            <div className={styles.choiceColumn}>
-              {skillOptions.map((option) => (
-                <button
-                  key={option}
-                  className={profile.cooking_skill === option ? styles.selectedChoice : styles.choiceCard}
+              <div className={styles.choiceColumn}>
+                {skillOptions.map((option) => (
+                  <button
+                    key={option}
+                    className={profile.cooking_skill === option ? styles.selectedChoice : styles.choiceCard}
                   onClick={() => updateProfileField("cooking_skill", option)}
                 >
                   {option}
@@ -1052,19 +1096,19 @@ export default function Home() {
                 Paper plates ready
               </button>
             </div>
-            <label className={styles.field}>
-              <span>Fridge capacity for pod ingredients</span>
-              <input value={fridgeSpace} onChange={(e) => setFridgeSpace(e.target.value)} placeholder="Standard fridge space" />
-            </label>
-            <label className={styles.field}>
-              <span>Cleanup instructions for guests</span>
-              <input
-                value={cleanupInstructions}
-                onChange={(e) => setCleanupInstructions(e.target.value)}
-                placeholder="Stack plates by sink, wipe surfaces, take leftovers home."
-              />
-            </label>
-          </div>
+              <label className={styles.field}>
+                <span>Fridge capacity for pod ingredients</span>
+                <input value={fridgeSpace} onChange={(e) => setFridgeSpace(e.target.value)} placeholder="Optional" />
+              </label>
+              <label className={styles.field}>
+                <span>Cleanup instructions for guests</span>
+                <input
+                  value={cleanupInstructions}
+                  onChange={(e) => setCleanupInstructions(e.target.value)}
+                  placeholder="Optional"
+                />
+              </label>
+            </div>
         );
       case "diet":
         return (
@@ -1108,16 +1152,25 @@ export default function Home() {
                 <span>Walk to grocery store (minutes)</span>
                 <input
                   type="number"
-                  value={profile.grocery_distance_minutes ?? 12}
-                  onChange={(e) => updateProfileField("grocery_distance_minutes", Number(e.target.value))}
+                  value={profile.grocery_distance_minutes ?? ""}
+                  onChange={(e) =>
+                    updateProfileField(
+                      "grocery_distance_minutes",
+                      e.target.value === "" ? null : Number(e.target.value),
+                    )
+                  }
+                  placeholder="Optional"
                 />
               </label>
               <label className={styles.field}>
                 <span>Host capacity</span>
                 <input
                   type="number"
-                  value={profile.host_capacity ?? 0}
-                  onChange={(e) => updateProfileField("host_capacity", Number(e.target.value))}
+                  value={profile.host_capacity ?? ""}
+                  onChange={(e) =>
+                    updateProfileField("host_capacity", e.target.value === "" ? null : Number(e.target.value))
+                  }
+                  placeholder="Optional"
                 />
               </label>
             </div>
@@ -1194,6 +1247,9 @@ export default function Home() {
         }
         if (preferences.has("Pescatarian") && warnings.includes("Contains red meat")) {
           warnings.push("Not pescatarian");
+        }
+        if (preferences.has("Pollo pescatarian") && warnings.includes("Contains red meat")) {
+          warnings.push("Not pollo pescatarian");
         }
         if (preferences.has("Avoid red meat") && warnings.includes("Contains red meat")) {
           warnings.push("Includes red meat");
@@ -1510,6 +1566,7 @@ export default function Home() {
                 </button>
               )}
             </div>
+            {statusMessage ? <p className={styles.statusMessage}>{statusMessage}</p> : null}
           </div>
         ) : !pod ? (
           <div className={styles.screenBody}>
@@ -1672,27 +1729,62 @@ export default function Home() {
                         <span className={styles.statLabel}>New people</span>
                       </div>
                     </div>
-                    <p className={styles.helperText}>
-                      Budget: {budgetPreference} • Geography: {travelPreference} • Support style: {supportStyle}
-                    </p>
+                    <div className={styles.detailGrid}>
+                      <div className={styles.detailRow}>
+                        <span className={styles.detailLabel}>Budget</span>
+                        <span className={styles.detailValue}>{budgetPreference}</span>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span className={styles.detailLabel}>Geography</span>
+                        <span className={styles.detailValue}>{travelPreference}</span>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span className={styles.detailLabel}>Support</span>
+                        <span className={styles.detailValue}>{supportStyle}</span>
+                      </div>
+                    </div>
                   </div>
                   <div className={styles.infoCard}>
                     <strong>Your profile</strong>
-                    <p>
-                      {displayName || session.user.email} • {profile?.cooking_skill} • {profile?.social_preference}
-                    </p>
-                    <p className={styles.helperText}>
-                      Preferences: {(profile?.dietary_preferences ?? ["No preference"]).join(", ")}
-                    </p>
-                    <p className={styles.helperText}>
-                      Allergies: {(profile?.allergies ?? []).length ? profile?.allergies?.join(", ") : "None added"}
-                    </p>
-                    <p className={styles.helperText}>
-                      Hosting: {profile?.can_host ? `Host for ${profile?.host_capacity ?? 0}` : "Not hosting"} • {fridgeSpace}
-                    </p>
-                    <p className={styles.helperText}>
-                      Cleanup support: {vacuumAvailable ? "Vacuum" : "No vacuum"} • {paperPlatesReady ? "Paper plates ready" : "Reusable only"}
-                    </p>
+                    <div className={styles.profileHeader}>
+                      <div className={styles.profileName}>{displayName || session.user.email}</div>
+                      <div className={styles.profileMeta}>
+                        <span className={styles.metaPill}>{profile?.cooking_skill || noPreferenceLabel}</span>
+                        <span className={styles.metaPill}>{profile?.social_preference || noPreferenceLabel}</span>
+                      </div>
+                    </div>
+                    <div className={styles.detailGrid}>
+                      <div className={styles.detailRow}>
+                        <span className={styles.detailLabel}>Preferences</span>
+                        <span className={styles.detailValue}>
+                          {(profile?.dietary_preferences?.length ? profile.dietary_preferences : [noPreferenceLabel]).join(", ")}
+                        </span>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span className={styles.detailLabel}>Allergies</span>
+                        <span className={styles.detailValue}>
+                          {(profile?.allergies ?? []).length ? profile?.allergies?.join(", ") : "None added"}
+                        </span>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span className={styles.detailLabel}>Hosting</span>
+                        <span className={styles.detailValue}>
+                          {profile?.can_host ? `Host for ${profile?.host_capacity ?? "?"}` : "Not hosting"}
+                        </span>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span className={styles.detailLabel}>Kitchen</span>
+                        <span className={styles.detailValue}>{fridgeSpace || "No notes added"}</span>
+                      </div>
+                    </div>
+                    <div className={styles.supportPills}>
+                      <span className={vacuumAvailable ? styles.goodBadge : styles.metaPill}>
+                        {vacuumAvailable ? "Vacuum available" : "No vacuum"}
+                      </span>
+                      <span className={paperPlatesReady ? styles.goodBadge : styles.metaPill}>
+                        {paperPlatesReady ? "Paper plates ready" : "Reusable only"}
+                      </span>
+                    </div>
                     <button className={styles.secondaryButton} onClick={openProfileEditor}>
                       Edit profile
                     </button>
