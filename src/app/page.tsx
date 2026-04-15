@@ -436,125 +436,164 @@ export default function Home() {
 
   const loadAppData = useCallback(async (userId: string) => {
     if (!supabase) return;
+    try {
+      const { data: profileData } = await withTimeout(
+        supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+        "Loading your profile took too long.",
+      );
+      const rawProfile = (profileData as Profile | null) ?? createBlankProfile(userId);
+      const nextProfile = rawProfile.onboarding_completed
+        ? rawProfile
+        : {
+            ...createBlankProfile(userId, rawProfile.email),
+            display_name: null,
+          };
+      setProfile(nextProfile);
+      setDisplayName(nextProfile?.display_name ?? "");
+      setOnboardingDone(Boolean(nextProfile?.onboarding_completed));
+      setBudgetPreference(noPreferenceLabel);
+      setTravelPreference(noPreferenceLabel);
+      setSupportStyle(noPreferenceLabel);
+      setMatchConnectionPreference(noPreferenceLabel);
+      setFridgeSpace("");
+      setCleanupInstructions("");
+      setSupportNeeds([]);
 
-    const { data: profileData } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
-    const rawProfile = (profileData as Profile | null) ?? createBlankProfile(userId);
-    const nextProfile = rawProfile.onboarding_completed
-      ? rawProfile
-      : {
-          ...createBlankProfile(userId, rawProfile.email),
-          display_name: null,
-        };
-    setProfile(nextProfile);
-    setDisplayName(nextProfile?.display_name ?? "");
-    setOnboardingDone(Boolean(nextProfile?.onboarding_completed));
-    setBudgetPreference(noPreferenceLabel);
-    setTravelPreference(noPreferenceLabel);
-    setSupportStyle(noPreferenceLabel);
-    setMatchConnectionPreference(noPreferenceLabel);
-    setFridgeSpace("");
-    setCleanupInstructions("");
-    setSupportNeeds([]);
+      const { data: membership } = await withTimeout(
+        supabase.from("pod_members").select("pod_id, pods(*)").eq("user_id", userId).maybeSingle(),
+        "Loading your pod membership took too long.",
+      );
 
-    const { data: membership } = await supabase
-      .from("pod_members")
-      .select("pod_id, pods(*)")
-      .eq("user_id", userId)
-      .maybeSingle();
+      const currentPod = membership?.pods as Pod | undefined;
+      setPod(currentPod ?? null);
 
-    const currentPod = membership?.pods as Pod | undefined;
-    setPod(currentPod ?? null);
+      if (!currentPod) {
+        setMemberCount(0);
+        setPodMembers([]);
+        setPodMemberProfiles([]);
+        setRecipeOptions([]);
+        setSelectedRecipeId(null);
+        setTasks([]);
+        setMessages([]);
+      }
 
-    if (!currentPod) {
-      setMemberCount(0);
+      const { data: friendLinks } = await withTimeout(
+        supabase.from("friend_connections").select("friend_id").eq("user_id", userId),
+        "Loading your network took too long.",
+      );
+      const friendIds = (friendLinks ?? []).map((link) => link.friend_id);
+
+      if (friendIds.length) {
+        const { data: friendProfiles } = await withTimeout(
+          supabase.from("profiles").select("id, display_name, email").in("id", friendIds).order("display_name"),
+          "Loading your friend profiles took too long.",
+        );
+        setFriends((friendProfiles as FriendProfile[]) ?? []);
+      } else {
+        setFriends([]);
+      }
+
+      const [profilesResponse, allMembershipsResponse] = await Promise.all([
+        withTimeout(supabase.from("profiles").select("*").eq("onboarding_completed", true), "Loading demand profiles took too long."),
+        withTimeout(supabase.from("pod_members").select("user_id"), "Loading pod assignments took too long."),
+      ]);
+
+      const assignedUserIds = new Set((allMembershipsResponse.data ?? []).map((member) => member.user_id));
+      const pool = ((profilesResponse.data as Profile[]) ?? []).filter((candidate) => {
+        if (candidate.id === userId) return true;
+        return !assignedUserIds.has(candidate.id);
+      });
+      setDemandProfiles(pool);
+
+      if (!currentPod) {
+        return;
+      }
+
+      const existingRecipes = await withTimeout(
+        supabase.from("recipe_options").select("id, title, description").eq("pod_id", currentPod.id),
+        "Loading recipe options took too long.",
+      );
+      const existingTitles = new Set((existingRecipes.data ?? []).map((recipe) => recipe.title));
+      const missingRecipes = baseRecipeSeed.filter((recipe) => !existingTitles.has(recipe.title));
+
+      if (missingRecipes.length > 0) {
+        await withTimeout(
+          supabase.from("recipe_options").insert(
+            missingRecipes.map((recipe) => ({
+              pod_id: currentPod.id,
+              title: recipe.title,
+              description: recipe.description,
+            })),
+          ),
+          "Seeding recipe options took too long.",
+        );
+      }
+
+      const [membersResponse, recipeResponse, voteResponse, taskResponse, feedbackResponse, messageResponse] =
+        await Promise.all([
+          withTimeout(
+            supabase.from("pod_members").select("user_id, connection_type, role").eq("pod_id", currentPod.id),
+            "Loading pod members took too long.",
+          ),
+          withTimeout(supabase.from("recipe_options").select("*").eq("pod_id", currentPod.id), "Loading recipes took too long."),
+          withTimeout(
+            supabase.from("recipe_votes").select("*").eq("pod_id", currentPod.id).eq("user_id", userId).maybeSingle(),
+            "Loading your recipe vote took too long.",
+          ),
+          withTimeout(
+            supabase.from("tasks").select("*").eq("pod_id", currentPod.id).order("created_at"),
+            "Loading tasks took too long.",
+          ),
+          withTimeout(
+            supabase.from("feedback").select("*").eq("pod_id", currentPod.id).eq("user_id", userId).maybeSingle(),
+            "Loading feedback took too long.",
+          ),
+          withTimeout(
+            supabase.from("pod_messages").select("*").eq("pod_id", currentPod.id).order("created_at"),
+            "Loading chat took too long.",
+          ),
+        ]);
+
+      const memberRows = (membersResponse.data as PodMember[]) ?? [];
+      setMemberCount(memberRows.length);
+      setPodMembers(memberRows);
+      setRecipeOptions((recipeResponse.data as RecipeOption[]) ?? []);
+      setTasks((taskResponse.data as Task[]) ?? []);
+      setMessages((messageResponse.data as Message[]) ?? []);
+
+      if (memberRows.length) {
+        const { data: memberProfiles } = await withTimeout(
+          supabase
+            .from("profiles")
+            .select("id, display_name, email, dietary_preferences, allergies")
+            .in("id", memberRows.map((member) => member.user_id)),
+          "Loading pod member profiles took too long.",
+        );
+        setPodMemberProfiles((memberProfiles as PodMemberProfile[]) ?? []);
+      } else {
+        setPodMemberProfiles([]);
+      }
+
+      if (voteResponse.data) {
+        setSelectedRecipeId(voteResponse.data.recipe_option_id);
+        setMealMode(voteResponse.data.meal_mode);
+        setMenuType(voteResponse.data.menu_type);
+      }
+
+      if (feedbackResponse.data) {
+        setFeedbackRating(feedbackResponse.data.rating);
+        setFeedbackNotes(feedbackResponse.data.notes || "");
+      }
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : "We couldn't reload your app state.");
+      setPod(null);
       setPodMembers([]);
       setPodMemberProfiles([]);
+      setDemandProfiles([]);
       setRecipeOptions([]);
       setSelectedRecipeId(null);
       setTasks([]);
       setMessages([]);
-    }
-
-    const { data: friendLinks } = await supabase.from("friend_connections").select("friend_id").eq("user_id", userId);
-    const friendIds = (friendLinks ?? []).map((link) => link.friend_id);
-
-    if (friendIds.length) {
-      const { data: friendProfiles } = await supabase
-        .from("profiles")
-        .select("id, display_name, email")
-        .in("id", friendIds)
-        .order("display_name");
-      setFriends((friendProfiles as FriendProfile[]) ?? []);
-    } else {
-      setFriends([]);
-    }
-
-    const [profilesResponse, allMembershipsResponse] = await Promise.all([
-      supabase.from("profiles").select("*").eq("onboarding_completed", true),
-      supabase.from("pod_members").select("user_id"),
-    ]);
-
-    const assignedUserIds = new Set((allMembershipsResponse.data ?? []).map((member) => member.user_id));
-    const pool = ((profilesResponse.data as Profile[]) ?? []).filter((candidate) => {
-      if (candidate.id === userId) return true;
-      return !assignedUserIds.has(candidate.id);
-    });
-    setDemandProfiles(pool);
-
-    if (!currentPod) {
-      return;
-    }
-
-    const existingRecipes = await supabase.from("recipe_options").select("id, title, description").eq("pod_id", currentPod.id);
-    const existingTitles = new Set((existingRecipes.data ?? []).map((recipe) => recipe.title));
-    const missingRecipes = baseRecipeSeed.filter((recipe) => !existingTitles.has(recipe.title));
-
-    if (missingRecipes.length > 0) {
-      await supabase.from("recipe_options").insert(
-        missingRecipes.map((recipe) => ({
-          pod_id: currentPod.id,
-          title: recipe.title,
-          description: recipe.description,
-        })),
-      );
-    }
-
-    const [membersResponse, recipeResponse, voteResponse, taskResponse, feedbackResponse, messageResponse] =
-      await Promise.all([
-        supabase.from("pod_members").select("user_id, connection_type, role").eq("pod_id", currentPod.id),
-        supabase.from("recipe_options").select("*").eq("pod_id", currentPod.id),
-        supabase.from("recipe_votes").select("*").eq("pod_id", currentPod.id).eq("user_id", userId).maybeSingle(),
-        supabase.from("tasks").select("*").eq("pod_id", currentPod.id).order("created_at"),
-        supabase.from("feedback").select("*").eq("pod_id", currentPod.id).eq("user_id", userId).maybeSingle(),
-        supabase.from("pod_messages").select("*").eq("pod_id", currentPod.id).order("created_at"),
-      ]);
-
-    const memberRows = (membersResponse.data as PodMember[]) ?? [];
-    setMemberCount(memberRows.length);
-    setPodMembers(memberRows);
-    setRecipeOptions((recipeResponse.data as RecipeOption[]) ?? []);
-    setTasks((taskResponse.data as Task[]) ?? []);
-    setMessages((messageResponse.data as Message[]) ?? []);
-
-    if (memberRows.length) {
-      const { data: memberProfiles } = await supabase
-        .from("profiles")
-        .select("id, display_name, email, dietary_preferences, allergies")
-        .in("id", memberRows.map((member) => member.user_id));
-      setPodMemberProfiles((memberProfiles as PodMemberProfile[]) ?? []);
-    } else {
-      setPodMemberProfiles([]);
-    }
-
-    if (voteResponse.data) {
-      setSelectedRecipeId(voteResponse.data.recipe_option_id);
-      setMealMode(voteResponse.data.meal_mode);
-      setMenuType(voteResponse.data.menu_type);
-    }
-
-    if (feedbackResponse.data) {
-      setFeedbackRating(feedbackResponse.data.rating);
-      setFeedbackNotes(feedbackResponse.data.notes || "");
     }
   }, [supabase]);
 
@@ -562,27 +601,39 @@ export default function Home() {
     if (!supabase) return;
 
     supabase.auth.getSession().then(async ({ data }) => {
-      setSession(data.session);
-      if (data.session?.user) {
-        await loadAppData(data.session.user.id);
+      try {
+        setSession(data.session);
+        if (data.session?.user) {
+          await loadAppData(data.session.user.id);
+        }
+      } catch (error) {
+        setStatusMessage(error instanceof Error ? error.message : "We couldn't restore your session.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
-      setSession(nextSession);
-      if (nextSession?.user) {
-        await loadAppData(nextSession.user.id);
-      } else {
-        setProfile(null);
-        setPod(null);
-        setPodMembers([]);
-        setPodMemberProfiles([]);
-        setDemandProfiles([]);
-        setOnboardingDone(false);
-        setFriends([]);
+      try {
+        setSession(nextSession);
+        if (nextSession?.user) {
+          setLoading(true);
+          await loadAppData(nextSession.user.id);
+        } else {
+          setProfile(null);
+          setPod(null);
+          setPodMembers([]);
+          setPodMemberProfiles([]);
+          setDemandProfiles([]);
+          setOnboardingDone(false);
+          setFriends([]);
+        }
+      } catch (error) {
+        setStatusMessage(error instanceof Error ? error.message : "We couldn't refresh your app state.");
+      } finally {
+        setLoading(false);
       }
     });
 
