@@ -393,8 +393,8 @@ export default function Home() {
   const [demandProfiles, setDemandProfiles] = useState<Profile[]>([]);
   const [friendEmail, setFriendEmail] = useState("");
   const [feedbackRating, setFeedbackRating] = useState(4);
-  const [feedbackNotes, setFeedbackNotes] = useState("Strong value, solid leftovers, and easy cleanup.");
-  const [anonymousPodFeedback, setAnonymousPodFeedback] = useState("One person carried cleanup. Task balancing should be more explicit next time.");
+  const [feedbackNotes, setFeedbackNotes] = useState("");
+  const [anonymousPodFeedback, setAnonymousPodFeedback] = useState("");
   const [activeTab, setActiveTab] = useState<"home" | "recipes" | "tasks" | "chat">("home");
   const [mealMode, setMealMode] = useState("Meal prep");
   const [menuType, setMenuType] = useState("Main + dessert");
@@ -2190,6 +2190,7 @@ export default function Home() {
                       className={styles.feedbackBox}
                       value={feedbackNotes}
                       onChange={(e) => setFeedbackNotes(e.target.value)}
+                      placeholder="How was the dish, prep, cost, or cleanup?"
                     />
                     <button className={styles.primaryButton} onClick={saveFeedback}>
                       Save feedback
@@ -2202,6 +2203,7 @@ export default function Home() {
                       className={styles.feedbackBox}
                       value={anonymousPodFeedback}
                       onChange={(event) => setAnonymousPodFeedback(event.target.value)}
+                      placeholder="Share private notes about pod friction or support needs."
                     />
                     <p className={styles.helperText}>
                       Use this for honest friction: someone loved the dish, someone else did not, or one member needed more support.
