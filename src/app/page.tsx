@@ -51,6 +51,7 @@ type Message = {
   id: string;
   body: string;
   user_id: string;
+  delivery_status?: "sending" | "sent" | "failed";
 };
 
 type FriendProfile = {
@@ -935,6 +936,21 @@ export default function Home() {
     setStatusMessage(error ? error.message : "Feedback saved.");
   }
 
+  async function refreshPodMessages(podId: string) {
+    if (!supabase) return;
+    const { data, error } = await withTimeout(
+      supabase.from("pod_messages").select("*").eq("pod_id", podId).order("created_at"),
+      "Refreshing chat took too long.",
+    );
+
+    if (error) {
+      setStatusMessage(error.message);
+      return;
+    }
+
+    setMessages((data as Message[]) ?? []);
+  }
+
   async function sendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!supabase || !session?.user || !pod || !messageDraft.trim()) return;
@@ -944,6 +960,7 @@ export default function Home() {
       id: `pending-${Date.now()}`,
       body,
       user_id: session.user.id,
+      delivery_status: "sending",
     };
 
     setMessageDraft("");
@@ -952,34 +969,37 @@ export default function Home() {
     setMessages((current) => [...current, optimisticMessage]);
 
     try {
-      const { data, error } = await withTimeout(
-        supabase
-          .from("pod_messages")
-          .insert({
-            pod_id: pod.id,
-            user_id: session.user.id,
-            body,
-          })
-          .select("*")
-          .single(),
+      const { error } = await withTimeout(
+        supabase.from("pod_messages").insert({
+          pod_id: pod.id,
+          user_id: session.user.id,
+          body,
+        }),
         "Sending took too long. Please try again.",
       );
 
       if (error) {
-        setMessages((current) => current.filter((message) => message.id !== optimisticMessage.id));
-        setMessageDraft(body);
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === optimisticMessage.id ? { ...message, delivery_status: "failed" } : message,
+          ),
+        );
         setStatusMessage(error.message);
         return;
       }
 
-      if (data) {
-        setMessages((current) =>
-          current.map((message) => (message.id === optimisticMessage.id ? (data as Message) : message)),
-        );
-      }
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === optimisticMessage.id ? { ...message, delivery_status: "sent" } : message,
+        ),
+      );
+      await refreshPodMessages(pod.id);
     } catch (error) {
-      setMessages((current) => current.filter((message) => message.id !== optimisticMessage.id));
-      setMessageDraft(body);
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === optimisticMessage.id ? { ...message, delivery_status: "failed" } : message,
+        ),
+      );
       setStatusMessage(error instanceof Error ? error.message : "We couldn't send that message.");
     } finally {
       setSendingMessage(false);
@@ -2199,7 +2219,12 @@ export default function Home() {
                           key={message.id}
                           className={message.user_id === session.user.id ? styles.outgoingMessage : styles.incomingMessage}
                         >
-                          {message.body}
+                          <span>{message.body}</span>
+                          {message.delivery_status && message.delivery_status !== "sent" ? (
+                            <span className={styles.messageStatus}>
+                              {message.delivery_status === "sending" ? "Sending..." : "Not sent. Try again."}
+                            </span>
+                          ) : null}
                         </div>
                       ))
                     ) : (

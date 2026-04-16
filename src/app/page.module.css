@@ -510,6 +510,8 @@
 
 .incomingMessage,
 .outgoingMessage {
+  display: grid;
+  gap: 4px;
   max-width: 86%;
   padding: 12px 14px;
   border-radius: 18px;
@@ -523,6 +525,13 @@
 .outgoingMessage {
   background: #dbe8f6;
   justify-self: end;
+}
+
+.messageStatus {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: #7a4328;
 }
 
 .messageComposer input {
