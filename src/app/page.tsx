@@ -385,6 +385,7 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageDraft, setMessageDraft] = useState("");
+  const [sendingMessage, setSendingMessage] = useState(false);
   const [friends, setFriends] = useState<FriendProfile[]>([]);
   const [podMembers, setPodMembers] = useState<PodMember[]>([]);
   const [podMemberProfiles, setPodMemberProfiles] = useState<PodMemberProfile[]>([]);
@@ -433,6 +434,17 @@ export default function Home() {
     const timer = window.setTimeout(() => setShowSplash(false), 1500);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!loading) return;
+
+    const timer = window.setTimeout(() => {
+      setLoading(false);
+      setStatusMessage("Loading took too long. Please refresh or sign in again.");
+    }, 15000);
+
+    return () => window.clearTimeout(timer);
+  }, [loading]);
 
   const loadAppData = useCallback(async (userId: string) => {
     if (!supabase) return;
@@ -886,18 +898,52 @@ export default function Home() {
   async function sendMessage(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!supabase || !session?.user || !pod || !messageDraft.trim()) return;
+
     const body = messageDraft.trim();
-    setMessageDraft("");
-    const { error } = await supabase.from("pod_messages").insert({
-      pod_id: pod.id,
-      user_id: session.user.id,
+    const optimisticMessage: Message = {
+      id: `pending-${Date.now()}`,
       body,
-    });
-    if (error) {
-      setStatusMessage(error.message);
-      return;
+      user_id: session.user.id,
+    };
+
+    setMessageDraft("");
+    setStatusMessage("");
+    setSendingMessage(true);
+    setMessages((current) => [...current, optimisticMessage]);
+
+    try {
+      const { data, error } = await withTimeout(
+        supabase
+          .from("pod_messages")
+          .insert({
+            pod_id: pod.id,
+            user_id: session.user.id,
+            body,
+          })
+          .select("*")
+          .single(),
+        "Sending took too long. Please try again.",
+      );
+
+      if (error) {
+        setMessages((current) => current.filter((message) => message.id !== optimisticMessage.id));
+        setMessageDraft(body);
+        setStatusMessage(error.message);
+        return;
+      }
+
+      if (data) {
+        setMessages((current) =>
+          current.map((message) => (message.id === optimisticMessage.id ? (data as Message) : message)),
+        );
+      }
+    } catch (error) {
+      setMessages((current) => current.filter((message) => message.id !== optimisticMessage.id));
+      setMessageDraft(body);
+      setStatusMessage(error instanceof Error ? error.message : "We couldn't send that message.");
+    } finally {
+      setSendingMessage(false);
     }
-    await loadAppData(session.user.id);
   }
 
   async function signOut() {
@@ -2107,14 +2153,18 @@ export default function Home() {
               {activeTab === "chat" && (
                 <>
                   <div className={styles.chatCard}>
-                    {messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={message.user_id === session.user.id ? styles.outgoingMessage : styles.incomingMessage}
-                      >
-                        {message.body}
-                      </div>
-                    ))}
+                    {messages.length ? (
+                      messages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={message.user_id === session.user.id ? styles.outgoingMessage : styles.incomingMessage}
+                        >
+                          {message.body}
+                        </div>
+                      ))
+                    ) : (
+                      <p className={styles.helperText}>No pod messages yet. Send the first one.</p>
+                    )}
                   </div>
                   <form className={styles.messageComposer} onSubmit={sendMessage}>
                     <input
@@ -2122,11 +2172,13 @@ export default function Home() {
                       onChange={(e) => setMessageDraft(e.target.value)}
                       placeholder="Send a pod message"
                     />
-                    <button className={styles.primaryButton}>Send</button>
+                    <button className={styles.primaryButton} disabled={sendingMessage || !messageDraft.trim()}>
+                      {sendingMessage ? "Sending..." : "Send"}
+                    </button>
                   </form>
                 </>
               )}
-              {statusMessage && activeTab === "home" ? <p className={styles.statusMessage}>{statusMessage}</p> : null}
+              {statusMessage ? <p className={styles.statusMessage}>{statusMessage}</p> : null}
             </div>
           </div>
         )}
