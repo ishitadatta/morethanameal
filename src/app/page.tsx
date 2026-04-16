@@ -143,22 +143,26 @@ const socialOptions = [
 
 const skillOptions = [
   noPreferenceLabel,
-  "Confident with basics",
-  "Can follow Serious Eats",
-  "Need structured recipes",
+  "1 - Can't crack an egg",
+  "2 - Can follow a simple recipe",
+  "3 - Comfortable with basics",
+  "4 - Can improvise and host",
+  "5 - Can run a Michelin-star kitchen",
 ];
 
 const quizSteps = [
-  { key: "intro", title: "Let's build your pod profile", subtitle: "This only takes a minute." },
-  { key: "name", title: "What should your pod call you?", subtitle: "Use the name your friends will recognize." },
-  { key: "skill", title: "What is your cooking skillset?", subtitle: "We use this to balance the pod." },
-  { key: "goals", title: "What are you optimizing for?", subtitle: "Pick the goals that matter most this week." },
-  { key: "diet", title: "What should we avoid or plan around?", subtitle: "Dietary preferences and allergies shape your recipes and pod fit." },
-  { key: "social", title: "Who are you comfortable meeting?", subtitle: "Trust level shapes pod matching." },
-  { key: "matching", title: "What kind of pod works best for you?", subtitle: "Budget, geography, and support style all affect matching." },
-  { key: "hosting", title: "What can your home realistically support?", subtitle: "Hosting details keep the pod practical, not aspirational." },
-  { key: "logistics", title: "What logistics should we know?", subtitle: "Hosting, car access, and groceries matter." },
+  { key: "intro", label: "Start", title: "Let's build your pod profile", subtitle: "This only takes a minute." },
+  { key: "name", label: "Bio", title: "What should your pod call you?", subtitle: "Use the name your friends will recognize." },
+  { key: "skill", label: "Skills", title: "What is your cooking skillset?", subtitle: "Pick the closest level. We use this to balance the pod." },
+  { key: "goals", label: "Goals", title: "What are you optimizing for?", subtitle: "Pick the goals that matter most this week." },
+  { key: "diet", label: "Tastes", title: "What should we avoid or plan around?", subtitle: "Dietary preferences and allergies shape your recipes and pod fit." },
+  { key: "social", label: "Social", title: "Who are you comfortable meeting?", subtitle: "Trust level shapes pod matching." },
+  { key: "matching", label: "Match", title: "What kind of pod works best for you?", subtitle: "Budget, geography, and support style all affect matching." },
+  { key: "hosting", label: "Resources", title: "What can your home realistically support?", subtitle: "Space, equipment, and cleanup details keep the pod practical." },
+  { key: "logistics", label: "Logistics", title: "What logistics should we know?", subtitle: "Hosting, car access, and groceries matter." },
 ];
+
+const fridgeCapacityOptions = [noPreferenceLabel, "Mini fridge only", "Some shelf space", "Half shelf", "Full shelf", "Extra freezer space"];
 
 const recipeCatalog: Record<string, { tags: string[]; warnings: string[] }> = {
   "Lemon chicken bowls": {
@@ -404,7 +408,7 @@ export default function Home() {
   const [supportStyle, setSupportStyle] = useState(noPreferenceLabel);
   const [vacuumAvailable, setVacuumAvailable] = useState(false);
   const [paperPlatesReady, setPaperPlatesReady] = useState(false);
-  const [fridgeSpace, setFridgeSpace] = useState("");
+  const [fridgeSpace, setFridgeSpace] = useState(noPreferenceLabel);
   const [cleanupInstructions, setCleanupInstructions] = useState("");
   const [supportNeeds, setSupportNeeds] = useState<string[]>([]);
   const [receiptName, setReceiptName] = useState("");
@@ -760,15 +764,15 @@ export default function Home() {
     setStatusMessage("");
 
     if (authMode === "signup") {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: authEmail,
         password: authPassword,
+        options: {
+          emailRedirectTo: window.location.origin,
+        },
       });
-      setStatusMessage(
-        error
-          ? error.message
-          : "Account created. Check your email if you need to verify your account, then sign in to continue.",
-      );
+      if (data.session) setSession(data.session);
+      setStatusMessage(error ? error.message : data.session ? "Account created. Let's build your profile." : "Account created. Please sign in to continue.");
     } else {
       const { error } = await supabase.auth.signInWithPassword({
         email: authEmail,
@@ -1144,11 +1148,11 @@ export default function Home() {
       case "skill":
         return (
           <div className={styles.stepContent}>
-              <div className={styles.choiceColumn}>
-                {skillOptions.map((option) => (
-                  <button
-                    key={option}
-                    className={profile.cooking_skill === option ? styles.selectedChoice : styles.choiceCard}
+            <div className={styles.choiceColumn}>
+              {skillOptions.map((option) => (
+                <button
+                  key={option}
+                  className={profile.cooking_skill === option ? styles.selectedChoice : styles.choiceCard}
                   onClick={() => updateProfileField("cooking_skill", option)}
                 >
                   {option}
@@ -1253,10 +1257,20 @@ export default function Home() {
                 Paper plates ready
               </button>
             </div>
-              <label className={styles.field}>
-                <span>Fridge capacity for pod ingredients</span>
-                <input value={fridgeSpace} onChange={(e) => setFridgeSpace(e.target.value)} placeholder="Optional" />
-              </label>
+            <div className={styles.infoCard}>
+              <strong>Fridge capacity for pod ingredients</strong>
+              <div className={styles.tagGrid}>
+                {fridgeCapacityOptions.map((option) => (
+                  <button
+                    key={option}
+                    className={fridgeSpace === option ? styles.selectedChip : styles.chip}
+                    onClick={() => setFridgeSpace(option)}
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </div>
               <label className={styles.field}>
                 <span>Cleanup instructions for guests</span>
                 <input
@@ -1697,6 +1711,18 @@ export default function Home() {
               </div>
             </div>
 
+            <div className={styles.sectionJumpGrid} aria-label="Profile sections">
+              {quizSteps.map((step, index) => (
+                <button
+                  key={step.key}
+                  className={quizStep === index ? styles.activeSectionJump : styles.sectionJump}
+                  onClick={() => setQuizStep(index)}
+                >
+                  {step.label}
+                </button>
+              ))}
+            </div>
+
             <div className={styles.screenHeader}>
               <p className={styles.brandKicker}>Onboarding</p>
               <h2>{currentStep.title}</h2>
@@ -1731,6 +1757,16 @@ export default function Home() {
               <p className={styles.brandKicker}>Ready to match</p>
               <h2>Choose a pod to join</h2>
               <p>Your onboarding profile is saved. Compare the pod options below, then join the one that fits best.</p>
+            </div>
+
+            <div className={styles.infoCard}>
+              <strong>Your profile is editable before matching</strong>
+              <p className={styles.helperText}>
+                Jump back into Bio, Skills, Tastes, Resources, or Logistics before creating your pod.
+              </p>
+              <button className={styles.secondaryButton} onClick={openProfileEditor}>
+                Edit my profile
+              </button>
             </div>
 
             <div className={styles.heroCard}>
