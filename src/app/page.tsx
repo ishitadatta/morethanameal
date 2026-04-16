@@ -448,13 +448,26 @@ export default function Home() {
 
   const loadAppData = useCallback(async (userId: string) => {
     if (!supabase) return;
+    setStatusMessage("");
+
     try {
       const { data: profileData } = await withTimeout(
         supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
         "Loading your profile took too long.",
       );
       const rawProfile = (profileData as Profile | null) ?? createBlankProfile(userId);
-      const nextProfile = rawProfile.onboarding_completed
+      const hasSavedProfileDetails = Boolean(
+        rawProfile.onboarding_completed ||
+          rawProfile.cooking_skill ||
+          rawProfile.social_preference ||
+          rawProfile.goals?.length ||
+          rawProfile.dietary_preferences?.some((preference) => preference !== noPreferenceLabel) ||
+          rawProfile.allergies?.length ||
+          rawProfile.grocery_distance_minutes !== null ||
+          rawProfile.has_car ||
+          rawProfile.can_host,
+      );
+      const nextProfile = hasSavedProfileDetails
         ? rawProfile
         : {
             ...createBlankProfile(userId, rawProfile.email),
@@ -462,7 +475,7 @@ export default function Home() {
           };
       setProfile(nextProfile);
       setDisplayName(nextProfile?.display_name ?? "");
-      setOnboardingDone(Boolean(nextProfile?.onboarding_completed));
+      setOnboardingDone(hasSavedProfileDetails);
       setBudgetPreference(noPreferenceLabel);
       setTravelPreference(noPreferenceLabel);
       setSupportStyle(noPreferenceLabel);
@@ -478,6 +491,9 @@ export default function Home() {
 
       const currentPod = membership?.pods as Pod | undefined;
       setPod(currentPod ?? null);
+      if (currentPod) {
+        setOnboardingDone(true);
+      }
 
       if (!currentPod) {
         setMemberCount(0);
@@ -612,44 +628,68 @@ export default function Home() {
   useEffect(() => {
     if (!supabase) return;
 
-    supabase.auth.getSession().then(async ({ data }) => {
-      try {
-        setSession(data.session);
-        if (data.session?.user) {
-          await loadAppData(data.session.user.id);
-        }
-      } catch (error) {
-        setStatusMessage(error instanceof Error ? error.message : "We couldn't restore your session.");
-      } finally {
-        setLoading(false);
-      }
-    });
+    let handledInitialSession = false;
+    let isActive = true;
+    let loadTimer: number | undefined;
+
+    const clearUserState = () => {
+      setProfile(null);
+      setPod(null);
+      setPodMembers([]);
+      setPodMemberProfiles([]);
+      setDemandProfiles([]);
+      setOnboardingDone(false);
+      setFriends([]);
+    };
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
-      try {
-        setSession(nextSession);
-        if (nextSession?.user) {
-          setLoading(true);
-          await loadAppData(nextSession.user.id);
-        } else {
-          setProfile(null);
-          setPod(null);
-          setPodMembers([]);
-          setPodMemberProfiles([]);
-          setDemandProfiles([]);
-          setOnboardingDone(false);
-          setFriends([]);
-        }
-      } catch (error) {
-        setStatusMessage(error instanceof Error ? error.message : "We couldn't refresh your app state.");
-      } finally {
-        setLoading(false);
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      handledInitialSession = true;
+      setSession(nextSession);
+
+      if (loadTimer) {
+        window.clearTimeout(loadTimer);
       }
+
+      if (!nextSession?.user) {
+        clearUserState();
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+
+      // Supabase auth warns against running async queries directly inside this callback.
+      loadTimer = window.setTimeout(async () => {
+        try {
+          await loadAppData(nextSession.user.id);
+        } catch (error) {
+          if (isActive) {
+            setStatusMessage(error instanceof Error ? error.message : "We couldn't refresh your app state.");
+          }
+        } finally {
+          if (isActive) {
+            setLoading(false);
+          }
+        }
+      }, 0);
     });
 
-    return () => subscription.unsubscribe();
+    const fallbackTimer = window.setTimeout(() => {
+      if (!handledInitialSession) {
+        setLoading(false);
+      }
+    }, 6000);
+
+    return () => {
+      isActive = false;
+      if (loadTimer) {
+        window.clearTimeout(loadTimer);
+      }
+      window.clearTimeout(fallbackTimer);
+      subscription.unsubscribe();
+    };
   }, [loadAppData, supabase]);
 
   const currentStep = quizSteps[quizStep];
