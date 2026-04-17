@@ -40,6 +40,13 @@ type RecipeOption = {
   description: string | null;
 };
 
+type RecipeCard = RecipeOption & {
+  compatible: boolean;
+  tags: string[];
+  warning: string | null;
+  cuisine: string;
+};
+
 type Task = {
   id: string;
   title: string;
@@ -360,6 +367,15 @@ const baseRecipeSeed = Object.keys(recipeCatalog).map((title) => ({
   description: recipeCatalog[title].tags.join(" • "),
 }));
 
+function getRecipeCuisine(title: string) {
+  if (/tikka|curry|butter chicken|paneer|tikka masala/i.test(title)) return "Indian";
+  if (/miso|tofu|soba|thai|sesame|fried rice|lettuce wraps/i.test(title)) return "Chinese / East Asian";
+  if (/shawarma|mediterranean|greek|kofta|tuna couscous|cod/i.test(title)) return "Mediterranean";
+  if (/fajitas|taco|burrito|enchilada/i.test(title)) return "Mexican / Tex-Mex";
+  if (/pasta|ziti|risotto|gnocchi|parmesan|shells|marinara/i.test(title)) return "Italian";
+  return "American / Comfort";
+}
+
 export default function Home() {
   const [supabase] = useState(() => {
     try {
@@ -386,7 +402,7 @@ export default function Home() {
   const [pod, setPod] = useState<Pod | null>(null);
   const [memberCount, setMemberCount] = useState(0);
   const [recipeOptions, setRecipeOptions] = useState<RecipeOption[]>([]);
-  const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
+  const [selectedRecipeIds, setSelectedRecipeIds] = useState<string[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [messageDraft, setMessageDraft] = useState("");
@@ -396,7 +412,7 @@ export default function Home() {
   const [podMemberProfiles, setPodMemberProfiles] = useState<PodMemberProfile[]>([]);
   const [demandProfiles, setDemandProfiles] = useState<Profile[]>([]);
   const [friendEmail, setFriendEmail] = useState("");
-  const [feedbackRating, setFeedbackRating] = useState(4);
+  const [feedbackRating, setFeedbackRating] = useState<number | null>(null);
   const [feedbackNotes, setFeedbackNotes] = useState("");
   const [anonymousPodFeedback, setAnonymousPodFeedback] = useState("");
   const [activeTab, setActiveTab] = useState<"home" | "recipes" | "tasks" | "chat">("home");
@@ -505,7 +521,7 @@ export default function Home() {
         setPodMembers([]);
         setPodMemberProfiles([]);
         setRecipeOptions([]);
-        setSelectedRecipeId(null);
+        setSelectedRecipeIds([]);
         setTasks([]);
         setMessages([]);
       }
@@ -570,8 +586,8 @@ export default function Home() {
           ),
           withTimeout(supabase.from("recipe_options").select("*").eq("pod_id", currentPod.id), "Loading recipes took too long."),
           withTimeout(
-            supabase.from("recipe_votes").select("*").eq("pod_id", currentPod.id).eq("user_id", userId).maybeSingle(),
-            "Loading your recipe vote took too long.",
+            supabase.from("recipe_votes").select("*").eq("pod_id", currentPod.id).eq("user_id", userId),
+            "Loading your recipe votes took too long.",
           ),
           withTimeout(
             supabase.from("tasks").select("*").eq("pod_id", currentPod.id).order("created_at"),
@@ -607,10 +623,13 @@ export default function Home() {
         setPodMemberProfiles([]);
       }
 
-      if (voteResponse.data) {
-        setSelectedRecipeId(voteResponse.data.recipe_option_id);
-        setMealMode(voteResponse.data.meal_mode);
-        setMenuType(voteResponse.data.menu_type);
+      const voteRows = (voteResponse.data as { recipe_option_id: string; meal_mode: string; menu_type: string }[]) ?? [];
+      if (voteRows.length) {
+        setSelectedRecipeIds(voteRows.map((vote) => vote.recipe_option_id));
+        setMealMode(voteRows[0].meal_mode);
+        setMenuType(voteRows[0].menu_type);
+      } else {
+        setSelectedRecipeIds([]);
       }
 
       if (feedbackResponse.data) {
@@ -624,7 +643,7 @@ export default function Home() {
       setPodMemberProfiles([]);
       setDemandProfiles([]);
       setRecipeOptions([]);
-      setSelectedRecipeId(null);
+      setSelectedRecipeIds([]);
       setTasks([]);
       setMessages([]);
     }
@@ -883,32 +902,54 @@ export default function Home() {
     await loadAppData(session.user.id);
   }
 
-  async function selectRecipe(recipeId: string) {
+  async function toggleRecipeSelection(recipeId: string) {
     if (!supabase || !session?.user || !pod) return;
-    setSelectedRecipeId(recipeId);
-    const { error } = await supabase.from("recipe_votes").upsert({
-      pod_id: pod.id,
-      user_id: session.user.id,
-      recipe_option_id: recipeId,
-      meal_mode: mealMode,
-      menu_type: menuType,
-      updated_at: new Date().toISOString(),
-    });
+    const nextRecipeIds = selectedRecipeIds.includes(recipeId)
+      ? selectedRecipeIds.filter((id) => id !== recipeId)
+      : [...selectedRecipeIds, recipeId];
+
+    setSelectedRecipeIds(nextRecipeIds);
+    const { error: deleteError } = await supabase
+      .from("recipe_votes")
+      .delete()
+      .eq("pod_id", pod.id)
+      .eq("user_id", session.user.id);
+
+    if (deleteError) {
+      setSelectedRecipeIds(selectedRecipeIds);
+      setStatusMessage(deleteError.message);
+      return;
+    }
+
+    if (!nextRecipeIds.length) return;
+
+    const { error } = await supabase.from("recipe_votes").insert(
+      nextRecipeIds.map((id) => ({
+        pod_id: pod.id,
+        user_id: session.user.id,
+        recipe_option_id: id,
+        meal_mode: mealMode,
+        menu_type: menuType,
+        updated_at: new Date().toISOString(),
+      })),
+    );
+    if (error) setSelectedRecipeIds(selectedRecipeIds);
     if (error) setStatusMessage(error.message);
   }
 
   async function savePreferences(nextMealMode: string, nextMenuType: string) {
-    if (!supabase || !session?.user || !pod || !selectedRecipeId) return;
+    if (!supabase || !session?.user || !pod || !selectedRecipeIds.length) return;
     setMealMode(nextMealMode);
     setMenuType(nextMenuType);
-    const { error } = await supabase.from("recipe_votes").upsert({
-      pod_id: pod.id,
-      user_id: session.user.id,
-      recipe_option_id: selectedRecipeId,
-      meal_mode: nextMealMode,
-      menu_type: nextMenuType,
-      updated_at: new Date().toISOString(),
-    });
+    const { error } = await supabase
+      .from("recipe_votes")
+      .update({
+        meal_mode: nextMealMode,
+        menu_type: nextMenuType,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("pod_id", pod.id)
+      .eq("user_id", session.user.id);
     if (error) setStatusMessage(error.message);
   }
 
@@ -930,6 +971,10 @@ export default function Home() {
 
   async function saveFeedback() {
     if (!supabase || !session?.user || !pod) return;
+    if (!feedbackRating) {
+      setStatusMessage("Choose a rating before saving feedback.");
+      return;
+    }
     const { error } = await supabase.from("feedback").upsert({
       pod_id: pod.id,
       user_id: session.user.id,
@@ -1039,7 +1084,7 @@ export default function Home() {
     setPodMemberProfiles([]);
     setMemberCount(0);
     setRecipeOptions([]);
-    setSelectedRecipeId(null);
+    setSelectedRecipeIds([]);
     setTasks([]);
     setMessages([]);
     setStatusMessage("You left the pod. You can join again anytime.");
@@ -1392,7 +1437,7 @@ export default function Home() {
     }
   };
 
-  const recipeCards = useMemo(() => {
+  const recipeCards = useMemo<RecipeCard[]>(() => {
     const preferences = new Set(profile?.dietary_preferences ?? ["No preference"]);
     const allergies = new Set(profile?.allergies ?? []);
 
@@ -1462,10 +1507,18 @@ export default function Home() {
           compatible,
           tags: meta.tags,
           warning: warnings[0] ?? null,
+          cuisine: getRecipeCuisine(recipe.title),
         };
       })
       .sort((a, b) => Number(b.compatible) - Number(a.compatible));
   }, [profile?.allergies, profile?.dietary_preferences, recipeOptions]);
+
+  const recipeGroups = useMemo(() => {
+    return recipeCards.reduce<Record<string, RecipeCard[]>>((groups, recipe) => {
+      groups[recipe.cuisine] = [...(groups[recipe.cuisine] ?? []), recipe];
+      return groups;
+    }, {});
+  }, [recipeCards]);
 
   const connectionBreakdown = useMemo(() => {
     const counts = { first: 0, second: 0, stranger: 0 };
@@ -2062,29 +2115,38 @@ export default function Home() {
                   <div className={styles.infoCard}>
                     <strong>Recipe vote</strong>
                     <p className={styles.helperText}>
-                      Ranked using your dietary preferences and allergy profile.
+                      Pick one or more recipes. They’re grouped by cuisine and ranked using your dietary preferences.
                     </p>
                     <div className={styles.choiceColumn}>
-                      {recipeCards.map((recipe) => (
-                        <button
-                          key={recipe.id}
-                          className={selectedRecipeId === recipe.id ? styles.selectedChoice : styles.choiceCard}
-                          onClick={() => selectRecipe(recipe.id)}
-                        >
-                          <span>{recipe.title}</span>
-                          <small>{recipe.description}</small>
-                          <div className={styles.recipeMeta}>
-                            <span className={recipe.compatible ? styles.goodBadge : styles.warningBadge}>
-                              {recipe.compatible ? "Matches your profile" : "Check restrictions"}
-                            </span>
-                            {recipe.tags.slice(0, 3).map((tag) => (
-                              <span key={tag} className={styles.metaPill}>
-                                {tag}
-                              </span>
-                            ))}
+                      {Object.entries(recipeGroups).map(([cuisine, recipes]) => (
+                        <div key={cuisine} className={styles.recipeGroup}>
+                          <div className={styles.recipeGroupHeader}>
+                            <span>{cuisine}</span>
+                            <small>{recipes.length} options</small>
                           </div>
-                          {recipe.warning ? <div className={styles.warningText}>{recipe.warning}</div> : null}
-                        </button>
+                          {recipes.map((recipe) => (
+                            <button
+                              key={recipe.id}
+                              className={selectedRecipeIds.includes(recipe.id) ? styles.selectedChoice : styles.choiceCard}
+                              onClick={() => toggleRecipeSelection(recipe.id)}
+                            >
+                              <span>{recipe.title}</span>
+                              <small>{recipe.description}</small>
+                              <div className={styles.recipeMeta}>
+                                <span className={recipe.compatible ? styles.goodBadge : styles.warningBadge}>
+                                  {recipe.compatible ? "Matches your profile" : "Check restrictions"}
+                                </span>
+                                {selectedRecipeIds.includes(recipe.id) ? <span className={styles.goodBadge}>Selected</span> : null}
+                                {recipe.tags.slice(0, 3).map((tag) => (
+                                  <span key={tag} className={styles.metaPill}>
+                                    {tag}
+                                  </span>
+                                ))}
+                              </div>
+                              {recipe.warning ? <div className={styles.warningText}>{recipe.warning}</div> : null}
+                            </button>
+                          ))}
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -2215,7 +2277,7 @@ export default function Home() {
                       {[1, 2, 3, 4, 5].map((rating) => (
                         <button
                           key={rating}
-                          className={feedbackRating >= rating ? styles.activeRating : styles.rating}
+                          className={feedbackRating !== null && feedbackRating >= rating ? styles.activeRating : styles.rating}
                           onClick={() => setFeedbackRating(rating)}
                         >
                           {rating}

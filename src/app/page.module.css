@@ -292,6 +292,26 @@
   margin-top: 6px;
 }
 
+.recipeGroup {
+  display: grid;
+  gap: 10px;
+}
+
+.recipeGroupHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0 4px;
+  color: #22313c;
+  font-weight: 900;
+}
+
+.recipeGroupHeader small {
+  color: #607280;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .goodBadge,
 .warningBadge,
 .metaPill {

@@ -93,8 +93,11 @@ create table if not exists public.recipe_votes (
   meal_mode text not null default 'Meal prep',
   menu_type text not null default 'Main + dessert',
   updated_at timestamptz not null default now(),
-  primary key (pod_id, user_id)
+  primary key (pod_id, user_id, recipe_option_id)
 );
+
+alter table public.recipe_votes drop constraint if exists recipe_votes_pkey;
+alter table public.recipe_votes add primary key (pod_id, user_id, recipe_option_id);
 
 create table if not exists public.tasks (
   id uuid primary key default gen_random_uuid(),
